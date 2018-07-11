@@ -9,7 +9,7 @@ Open the terminal and type `npm install`. This will install all dependencies.
 
 To run the application type `npm start`. This will start the live server and the application will be available at http://localhost:8080.
 Please make sure that the port 8080 is available and there is no any other application running on that port.
-Open your favorite browser and navigate to http://localhost:8000.
+Open your favorite browser and navigate to http://localhost:8080.
 Here you will see the application folders/files.
 Click the `app` folder in the browser and the application will open for you :)
 
