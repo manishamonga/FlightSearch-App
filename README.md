@@ -1,4 +1,4 @@
-# A simple Flight search engine developed with AngularJS
+# A Flight Search Engine developed with AngularJS
 
 ## Install dependencies
 
