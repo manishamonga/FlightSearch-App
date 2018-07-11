@@ -1,0 +1,129 @@
+* {
+    box-sizing: border-box;
+}
+
+input[type="date"]:before {
+    content: attr(placeholder) !important;
+    color: #5C5C5C;
+    margin-right: 0.5em;
+  }
+  input[type="date"]:focus:before,
+  input[type="date"].hasValue:before {
+    content: "" !important;
+    margin-right: 0;
+  }
+
+
+
+
+.column1 {
+    float: left;
+    width: 30%;
+    padding: 10px;
+
+}
+
+.search {
+    border: 1px solid gray;
+    padding: 5px;
+    margin-top: 10px;
+    text-align: center;
+    border-radius: 6px;
+}
+
+input {
+    width: 80%;
+    padding: 3px;
+    margin: 3px;
+    text-align: center
+}
+
+
+
+.column {
+    width: 70%;
+    float: left;
+    border-left: 1px solid green;
+}
+
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.center {
+    margin: auto;
+    width: 80%;
+    border: 3px solid green;
+
+}
+
+.nomargin {
+    margin: 0;
+    padding: 0;
+}
+
+
+.breadcrum {
+    width: 65%;
+    display: inline-block;
+    padding-left: 14px;
+}
+
+
+.dates {
+    width: 30%;
+    display: inline-block;
+    text-align: right;
+}
+
+.breadcrumInfo {
+    border-bottom: 1px solid green;
+}
+
+.info {
+    width: 70%;
+    display: inline-block;
+    padding-left: 10px;
+}
+
+.infoimg {
+    width: 28%;
+    display: inline-block;
+    padding: 5px;
+}
+
+.flightElem {
+    border: 1px solid green;
+    margin: 10px;
+}
+
+.infoimg img {
+
+    width: 100%;
+    height: auto;
+
+}
+
+
+
+.colDest,.colReturn{
+    display: inline-block;
+    width:48%;
+}
+
+
+
+
+
+
+@media only screen and (max-width: 768px) {
+    .column,
+    .column1 {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid green;
+    }
+}
+

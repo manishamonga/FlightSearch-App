@@ -1,0 +1,393 @@
+<!doctype html>
+<html ng-app="app">
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.core.js"></script>
+    <script src="modules/controllers/flight.js"></script>
+    <script src="modules/lib/faker.js"></script>
+    <link rel="stylesheet" href="assets/css/app.css">
+
+    <style>
+        input[type=range] {
+            box-sizing: border-box;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 300px;
+            margin: 0;
+            padding: 0 2px;
+            overflow: hidden;
+            border: 0;
+            border-radius: 1px;
+            outline: none;
+            background: linear-gradient(grey, grey) no-repeat center;
+            /* Use a linear gradient to generate only the 2px height background */
+            background-size: 100% 2px;
+            pointer-events: none;
+        }
+
+        input[type=range]:active,
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            height: 15px;
+            width: 15px;
+            border-radius: 28px;
+            background-color: #fff;
+            position: relative;
+            margin: 5px 0;
+            /* Add some margin to
+ensure box shadow is shown */
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+            pointer-events: all;
+            box-shadow: 0 1px 4px 0.5px rgba(0, 0, 0, 0.25);
+        }
+
+        input[type=range]::-webkit-slider-thumb::before {
+            content: ' ';
+            display: block;
+            position: absolute;
+            top: 13px;
+            width: 2000px;
+            height: 2px;
+        }
+
+        .multi-range {
+            position: relative;
+            height: 50px;
+            float: left;
+            padding-left: 55px;
+            width: 95%
+        }
+
+        .multi-range input[type=range] {
+            position: absolute;
+            left: 15px;
+            width: 95%;
+        }
+
+        .multi-range input[type=range]:nth-child(1)::-webkit-slider-thumb::before {
+            background-color: red;
+        }
+
+        .multi-range input[type=range]:nth-child(2) {
+            background: none;
+        }
+
+        .multi-range input[type=range]:nth-child(2)::-webkit-slider-thumb::before {
+            background-color: grey;
+        }
+    </style>
+</head>
+
+<body>
+    <div ng-controller="FlightCtrl as $ctrl">
+
+        <div class="row center">
+            <div style="border-bottom: 1px solid green">
+                <h2>Flight Search Engine</h2>
+            </div>
+            <div>
+
+            </div>
+
+            <div class="column1">
+                <form>
+
+                    <button ng-click="$ctrl.inputModel.mode=0">One Way</button>
+                    <button ng-click="$ctrl.inputModel.mode=1">Return</button>
+                    <div class="search">
+                        <input type="text" placeholder="Enter from City" ng-model="$ctrl.inputModel.from" />
+                        <input type="text" placeholder="Enter Destination City" ng-model="$ctrl.inputModel.to" />
+                        <input type="date" placeholder="Departure Date" id="ddate" ng-model="$ctrl.inputModel.ddate" ng-change="$ctrl.onDepartChange($ctrl.inputModel.ddate)"
+                        />
+                        <div ng-if="$ctrl.inputModel.mode==1">
+                            <input placeholder="Return Date" type="date" type="rdate" ng-model="$ctrl.inputModel.rdate" ng-change="$ctrl.onReturnChange($ctrl.inputModel.rdate)"
+                            />
+                        </div>
+
+
+
+                        <!-- <div ng-if="$ctrl.inputModel.mode==1">
+
+
+                            <div style="border:1px solid;background1: red;width: 200px;position: relative">
+                                <div style="position: absolute;right: 0;height: 100%;top: 0;background1: green" aria-placeholder="">
+                                    C
+                                </div>
+                                <div style="position: absolute;left: 0;top: 0;pointer-events: none">
+                                    {{$ctrl.inputModel.rdate | date}}
+                                </div>
+                                <input style="opacity: 0;width: 100%" type="date" type="rdate" ng-model="$ctrl.inputModel.rdate" ng-change="$ctrl.onReturnChange($ctrl.inputModel.rdate)"
+                                />
+                            </div>
+
+
+
+                        </div> -->
+                        <input type="number" ng-model="$ctrl.inputModel.passengers" placeholder="Passengers" />
+                        <div>
+                            <button ng-click="$ctrl.findFlights($ctrl.inputModel)">
+                                Search
+                            </button>
+                        </div>
+
+
+                    </div>
+
+                    <div class="search" style="height: 110px;">
+                        <h4>
+                            Refine Flight Price
+                        </h4>
+                        <span class="multi-range">
+
+                            <input type="range" min="999" max="4999" id="lower" ng-model="$ctrl.inputModel.minPrice" ng-change="$ctrl.findFlights($ctrl.inputModel)">
+                            <input type="range" min="999" max="4999" id="upper" ng-model="$ctrl.inputModel.maxPrice" ng-change="$ctrl.findFlights($ctrl.inputModel)">
+                        </span>
+
+
+
+
+                    </div>
+                </form>
+            </div>
+
+            <div class="column">
+
+                <div class="breadcrumInfo" ng-if="$ctrl.flightsAvailable">
+
+                    <div class="breadcrum">
+                        <h2>{{ $ctrl.inputModel.from }} > {{$ctrl.inputModel.to}} > {{$ctrl.inputModel.from}} </h2>
+                    </div>
+                    <div class="dates">
+                        <h4 class="nomargin">Depart: {{$ctrl.userInputDepartureDate}}</h4>
+                        <h4 class="nomargin" ng-if="$ctrl.inputModel.rdate">Return: {{$ctrl.userInputReturnDate}}</h4>
+                    </div>
+
+                </div>
+
+                <!-- show onward flights and Return flights -->
+
+                <div class="flightElem" ng-repeat="flight in $ctrl.flightsD track by $index">
+                    <div class="info">
+
+                        <div class="colDest">
+                            <h2 class="nomargin">Rs. {{ flight.price }}</h2>
+                            <h3>
+                                {{ flight.flightName }}
+                            </h3>
+                            <h3 class="v">{{flight.from}} > {{flight.to}} </h3>
+                            <h4 class="nomargin">Depart: {{ flight.dtime }}</h4>
+                            <h4 class="nomargin">Arrive: {{ flight.rtime }} </h4>
+
+                        </div>
+
+                        <div class="colReturn" ng-if="$ctrl.inputModel.rdate && $ctrl.flightsR">
+                            <h2 class="nomargin">Rs. {{ $ctrl.flightsR[$index].price }}</h2>
+                            <h3>{{$ctrl.flightsR[$index].flightName}}</h3>
+                            <h3 class="nomargin"> {{ $ctrl.flightsR[$index].from }} > {{ $ctrl.flightsR[$index].to }}</h3>
+                            <h4 class="nomargin">Depart: {{ $ctrl.flightsR[$index].dtime }} </h4>
+                            <h4 class="nomargin">Arrive: {{ $ctrl.flightsR[$index].rtime}} </h4>
+
+
+                        </div>
+                        <!-- <div>
+                            <h2 class="nomargin">Rs. {{ flight.price }}</h2>
+                        </div>
+                        <div class="going">
+                            <h3>
+                                {{ flight.number }}
+                            </h3>
+                            <h3 class="v">{{flight.from}} > {{flight.to}} </h3>
+                            <h4 class="nomargin">Depart: {{ flight.dtime }}</h4>
+                            <h4 class="nomargin">Arrive: {{ flight.rtime }} </h4>
+                        </div> -->
+
+
+                        <!-- <h2 class="nomargin">Rs. {{ $ctrl.flightsR[$index].price }}</h2> -->
+
+
+
+                        <!-- <div class="return" ng-if="$ctrl.inputModel.rdate">
+                            <span>{{$ctrl.flightsR[$index].number}}</span>
+                            <h3 class="nomargin"> {{ $ctrl.flightsR[$index].from }} > {{ $ctrl.flightsR[$index].to }}</h3>
+                            <h4 class="nomargin">Depart: {{ $ctrl.flightsR[$index].dtime }} </h4>
+                            <h4 class="nomargin">Arrive: {{ $ctrl.flightsR[$index].rtime}} </h4>
+                        </div> -->
+
+
+                    </div>
+                    <div class="infoimg">
+                        <img src="images/download.jpg">
+                        <button style="text-align: center;width: 100%;">Book now</button>
+                    </div>
+
+
+
+
+                </div>
+
+                <div ng-if="($ctrl.flightsD.length<=0 && $ctrl.flightsR.length<=0)">
+                    <h2 style="text-align: center;">No Flights are available</h2>
+                </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+            <!-- <div style="float:left;width: 30%;">
+
+                <br>
+                <div>
+                    <div>
+                        <div>
+                                    <input type="text" placeholder="Ener from City" ng-model="$ctrl.inputModel.origin" />
+                                </div>
+                                <div>
+                                    <input type="text" placeholder="Ener Destination City" ng-model="$ctrl.inputModel.to" />
+                                </div>
+                        <div>
+
+                            <select ng-model="$ctrl.inputModel.from">
+                                <option ng-repeat="city in $ctrl.cities" placeholder="Enter origin City" ng-value="city">{{city}}</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label>Destination</label>
+                            <select ng-model="$ctrl.inputModel.to">
+                                <option ng-repeat="city in $ctrl.cities" ng-if="city !== $ctrl.selectedSource" ng-value="city">{{city}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br>
+                    <div>
+                        <input type="date" id="ddate" ng-model="$ctrl.inputModel.ddate" ng-change="$ctrl.onDepartChange($ctrl.inputModel.ddate)"
+                        />
+                    </div>
+                    <div ng-if="$ctrl.inputModel.mode==1">
+
+
+                        <div style="border:1px solid;background1: red;width: 200px;position: relative">
+                            <div style="position: absolute;right: 0;height: 100%;top: 0;background1: green">
+                                C
+                            </div>
+                            <div style="position: absolute;left: 0;top: 0;pointer-events: none">
+                                {{$ctrl.inputModel.rdate | date}}
+                            </div>
+                            <input style="opacity: 0;width: 100%" type="date" type="rdate" ng-model="$ctrl.inputModel.rdate" ng-change="$ctrl.onReturnChange($ctrl.inputModel.rdate)"
+                            />
+                        </div>
+
+
+
+                    </div>
+                    <div>
+                        <input type="number" ng-model="$ctrl.inputModel.passengers" placeholder="Passengers" />
+                    </div>
+                    <div>
+                        <button ng-click="$ctrl.findFlights($ctrl.inputModel)">
+                            Search
+                        </button>
+                    </div>
+                </div>
+
+
+
+                <div style="position: relative">
+                        <input style="position: absolute;top: 0;left: 0;" type="range" min="0" max="1000" ng-model="$ctrl.inputModel.refineFlightSearchRange1">
+                        <input style="position: absolute;top: 0;left: 0;" type="range" min="0" max="1000" ng-model="$ctrl.inputModel.refineFlightSearchRange2">
+                    </div>
+
+
+            </div> -->
+            <div style="float:right;width: 70%;">
+
+                <!-- <div>
+                    <span class="multi-range">
+                        <input type="range" min="999" max="4999" id="lower" ng-model="$ctrl.inputModel.minPrice" ng-change="$ctrl.findFlights($ctrl.inputModel)">
+                        <input type="range" min="999" max="4999" id="upper" ng-model="$ctrl.inputModel.maxPrice" ng-change="$ctrl.findFlights($ctrl.inputModel)">
+                    </span>
+                </div> -->
+
+
+
+
+                <!-- <span>
+                    <h1>Onward Flights</h1>
+                    <div ng-repeat="flight in $ctrl.flightsD track by $index">
+                        <div>
+                            {{flight.from}}->{{flight.to}}->{{flight.from}}
+                        </div>
+                        <div>
+                            {{flight.price}}
+                        </div>
+                        <div>
+                            {{flight.name}}
+                        </div>
+                        <div>
+                            Arrive:{{flight.departTime}}
+                        </div>
+                    </div>
+                </span>
+
+                <span>
+                    <h1>Return Flights</h1>
+                    <div ng-repeat="flight in $ctrl.flightsR track by $index">
+                        <div>
+                            {{flight.from}}->{{flight.to}}->{{flight.from}}
+                        </div>
+                        <div>
+                            {{flight.price}}
+                        </div>
+                        <div>
+                            {{flight.name}}
+                        </div>
+                        <div>
+                            Arrive:{{flight.departTime}}
+                        </div>
+                    </div>
+                </span> -->
+
+
+
+                <!-- <select ng-model="$ctrl.selectedFlight">
+                            <option ng-repeat="flight in $ctrl.flights" ng-value="option.number">{{flight.number}}</option>
+                        </select> -->
+
+
+
+
+
+
+
+
+            </div>
+            <div style="clear: both;">
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
