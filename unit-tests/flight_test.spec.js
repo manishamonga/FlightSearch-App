@@ -1,7 +1,7 @@
 describe('FlightCtrl', function () {
     beforeEach(module('app'));
-    var ctrl, scope, Flights;
-
+    var ctrl, Flights;
+    var inputModel = {};
 
 
     // Loading module and mock the data
@@ -50,21 +50,14 @@ describe('FlightCtrl', function () {
             }
 
             // Create mock function `getAllOnewayTrips` to get promise with mock-data when it will be invoked
-            mockTripsService.getFlightData = function () {
+            mockFlightService.getFlightData = function () {
                 var defer = $q.defer();
                 console.log("data", this.data);
                 defer.resolve(this.data);
 
                 return defer.promise;
             };
-            // Create mock function `getAllReturnTrips` to get promise with mock-data when it will be invoked
-            // mockTripsService.getAllReturnTrips = function () {
-            //     var defer = $q.defer();
 
-            //     defer.resolve(this.data);
-
-            //     return defer.promise;
-            // };
         });
 
     });
@@ -72,10 +65,9 @@ describe('FlightCtrl', function () {
 
 
     beforeEach(inject(function ($controller, $rootScope, _Flights_) {
-        scope = $rootScope.$new();
+        //scope = $rootScope.$new();
         Flights = _Flights_;
         ctrl = $controller('FlightCtrl', {
-            $scope: scope,
             Flights: Flights
         });
 
@@ -87,13 +79,20 @@ describe('FlightCtrl', function () {
     });
 
     it('generate flight', function () {
-        ctrl.generateFlights();
-        console.log(ctrl.flights[0])
-        expect(ctrl.flights.length).toBeGreaterThan(0);
+        ctrl.flightsD = [];
+        expect(ctrl.flightsD.length).toEqual(0);
+
+        inputModel.from = "East Genemouth";
+        inputModel.to = "Lake Valentin",
+            inputModel.ddate = "2018-07-13T18:30:00.000Z",
+
+            ctrl.findFlights(inputModel);
+        console.log(ctrl.flightsD[0]);
+        expect(ctrl.flightsD.length).toEqual(Flights);
 
         //we lnow aht fligjt nunber 101 goes to mum from del daily at 7:30 AM and takes 90 minutes
 
-        expect(ctrl.flights[0].flightName).toEqual("BLK");
+        expect(ctrl.flightsD[0].flightName).toEqual("BLK");
 
     });
 

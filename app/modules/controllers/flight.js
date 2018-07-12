@@ -107,13 +107,13 @@ angular.module('app', [])
 
                 }
 
-                _this.userInputReturnDate = `${model.rdate.getFullYear()}-${model.rdate.getMonth() + 1}-${model.rdate.getDate()}`;
+                _this.userInputReturnDate = `${new Date(model.rdate).getFullYear()}-${new Date(model.rdate).getMonth() + 1}-${new Date(model.rdate).getDate()}`;
             }
 
 
 
             if (!_this.userInputDepartureDate) {
-                _this.userInputDepartureDate = `${model.ddate.getFullYear()}-${model.ddate.getMonth() + 1}-${model.ddate.getDate()}`;
+                _this.userInputDepartureDate = `${new Date(model.ddate).getFullYear()}-${new Date(model.ddate).getMonth() + 1}-${new Date(model.ddate).getDate()}`;
 
             }
 
